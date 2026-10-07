@@ -13,6 +13,7 @@ class EmployeeController{
     }
 
     public function create(){
+        $autoEmpNo=$this->model->generateNextEmployeeNo();
         include 'views/employee_form.php';
 
     }

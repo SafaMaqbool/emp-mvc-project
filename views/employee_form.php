@@ -1,12 +1,14 @@
 <?php include 'views/templates/header.html.php'; ?>
-<?php include 'views/templates/navbar.html.php';?>
+<?php include 'views/templates/navbar.html.php'; ?>
 
 <h3>Register new employee</h3>
 
 <form action="index.php?action=store" method="POST" class="form">
     <div class="form-group">
         <label for="EmpNo">Employee Number (EmpNo):</label>
-        <input type="text" name="EmpNo" id="EmpNo" placeholder="eg: E10" required>
+
+        <input type="text"  id="EmpNo" disabled readonly value="<?= htmlspecialchars($autoEmpNo??'');  ?>">
+       <input type="hidden" name="EmpNo" value="<?= htmlspecialchars($autoEmpNo ?? ''); ?>">
 
     </div>
 
@@ -25,7 +27,7 @@
         <label for="Surname">Surname: </label>
         <input type="text" name="Surname" id="Surname" required>
     </div>
-    
+
     <div class="form-group">
         <label for="DeptNo">Department: </label>
         <select name="DeptNo" id="DeptNo">
@@ -53,4 +55,4 @@
 
 
 
-<?php include 'views/templates/footer.html.php'?>
+<?php include 'views/templates/footer.html.php' ?>
