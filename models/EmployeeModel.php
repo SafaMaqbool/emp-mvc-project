@@ -16,24 +16,23 @@ class EmployeeModel
         $query = "Select EmpNo FROM employee
                 ORDER BY CAST(SUBSTRING(EmpNo, 2) As UNSIGNED) DESC LIMIT 1";
 
-        $stmt=$this->conn->prepare($query);
+        $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        $row=$stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($row && !empty($row['EmpNo'])){
-            $lastNum=(int)substr($row['EmpNo'],1);
-            $nextNum=$lastNum + 1;
-
-        }else{
-            $nextNum=1;
+        if ($row && !empty($row['EmpNo'])) {
+            $lastNum = (int)substr($row['EmpNo'], 1);
+            $nextNum = $lastNum + 1;
+        } else {
+            $nextNum = 1;
         }
         return 'E' . $nextNum;
     }
 
     public function insertEmployee($data)
     {
-        $query = "INSERT INTO employee (EmpNo, NiNo, Firstname, Surname, DeptNo, Office, Salary)
-        VALUES (:EmpNo, :NiNo, :Firstname, :Surname, :DeptNo, :Office, :Salary)";
+        $query = "INSERT INTO employee (EmpNo, NiNo, Firstname, Surname, DeptNo, Office, Salary, is_active)
+        VALUES (:EmpNo, :NiNo, :Firstname, :Surname, :DeptNo, :Office, :Salary, 1)";
 
         $stmt = $this->conn->prepare($query);
         return $stmt->execute($data);
