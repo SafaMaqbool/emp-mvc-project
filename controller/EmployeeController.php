@@ -78,12 +78,12 @@ class EmployeeController
             try {
                 if ($this->model->insertEmployee($data)) {
 
-                   //ab we need to also add the audit message jese hi employee create ho 
-                   $logMessage="Employee " . $_POST['EmpNo'] ." created";
-                   $this->logModel->addLog($logMessage,'CREATE');
+                    //ab we need to also add the audit message jese hi employee create ho 
+                    $logMessage = "Employee " . $_POST['EmpNo'] . " created";
+                    $this->logModel->addLog($logMessage, 'CREATE');
                     header("Location: index.php?action=list");
                     exit();
-                }else{
+                } else {
                     echo "Error inserting record";
                 }
             } catch (PDOException $e) {
