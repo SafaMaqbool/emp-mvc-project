@@ -1,17 +1,20 @@
 <?php
 require_once 'config/Database.php';
 require_once 'models/EmployeeModel.php';
+require_once 'models/logModel.php';
 
 
 class EmployeeController
 {
     private $model;
+    private $logModel;
 
     public function __construct()
     {
         $database = new Database();
         $db = $database->getConnection();
         $this->model = new EmployeeModel($db);
+        $this->logModel = new LogModel($db);
     }
 
     public function create()
@@ -74,8 +77,14 @@ class EmployeeController
 
             try {
                 if ($this->model->insertEmployee($data)) {
+
+                   //ab we need to also add the audit message jese hi employee create ho 
+                   $logMessage="Employee " . $_POST['EmpNo'] ." created";
+                   $this->logModel->addLog($logMessage,'CREATE');
                     header("Location: index.php?action=list");
                     exit();
+                }else{
+                    echo "Error inserting record";
                 }
             } catch (PDOException $e) {
                 //23000 error code is dor inetgraty constrayunt violation
