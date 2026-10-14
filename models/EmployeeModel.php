@@ -14,7 +14,7 @@ class EmployeeModel
     public function generateNextEmployeeNo()
     {
         $query = "Select EmpNo FROM employee
-                ORDER BY CAST(SUBSTRING(EmpNo, 2) As UNSIGNED) DESC LIMIT 1";
+                  ORDER BY CAST(SUBSTRING(EmpNo, 2) As UNSIGNED) DESC LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -48,4 +48,34 @@ class EmployeeModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getEmployeeById($empNo)
+    {
+        $query = "SELECT * FROM employee WHERE EmpNo = :empNo";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['empNo' => $empNo]);
+
+        // Single row fetch karne ke liye fetch(PDO::FETCH_ASSOC) use hota hai
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+public function updateEmployee($data) {
+    $query = "UPDATE employee
+              SET NiNo = :NiNo,
+                  Firstname = :Firstname,
+                  Surname = :Surname,
+                  DeptNo = :DeptNo,
+                  Office = :Office,
+                  Salary = :Salary
+              WHERE EmpNo = :EmpNo";
+
+    $stmt = $this->conn->prepare($query);
+
+    
+    return $stmt->execute($data); 
+}
+
+
 }

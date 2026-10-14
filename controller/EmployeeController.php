@@ -47,7 +47,7 @@ class EmployeeController
 
             $formData = [
                 'NiNo' => $NiNo,
-                'FirstName' => $_POST['Firstname'] ?? '',
+                'Firstname' => $_POST['Firstname'] ?? '',
                 'Surname' => $_POST['Surname'] ?? '',
                 'DeptNo' => $_POST['DeptNo'] ?? '',
                 'Office' => $_POST['Office'] ?? '',
@@ -96,6 +96,38 @@ class EmployeeController
                     return; // Error ke sath form reload kar dega
                 }
                 throw $e;
+            }
+        }
+    }
+public function edit(){
+      
+        $empNo = $_GET['id'] ?? null;
+        
+        if($empNo){
+            $formData = $this->model->getEmployeeById($empNo);
+            include 'views/employee_form.php';
+        } else {
+            // Agar id na mile to shoulkd go on list hi 
+            header("Location: index.php?action=list");
+            exit();
+        }
+    }
+
+    public function update(){
+        if($_SERVER['REQUEST_METHOD']==='POST'){
+            $data=[
+                ':EmpNo' => $_POST['EmpNo'],
+                ':NiNo'      => $_POST['NiNo'],
+                ':Firstname' => $_POST['Firstname'],
+                ':Surname'   => $_POST['Surname'],
+                ':DeptNo'    => $_POST['DeptNo'],
+                ':Office'    => $_POST['Office'],
+                ':Salary'    => $_POST['Salary']
+            ];
+
+            if($this->model->updateEmployee($data)){
+                header("Location: index.php?action=list");
+                exit();
             }
         }
     }

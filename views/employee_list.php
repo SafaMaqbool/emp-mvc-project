@@ -11,6 +11,7 @@
             <th>Department</th>
             <th>Office</th>
             <th>Annual Salary</th>
+            <th>Actions</th>
 
         </tr>
         
@@ -27,6 +28,10 @@
                     <td><?php echo htmlspecialchars($emp['DeptName']);?></td>
                     <td><?php echo htmlspecialchars($emp['Office']);?></td>
                     <td><?php echo htmlspecialchars($emp['Salary']);?></td>
+                    <td>
+                        <a href="index.php?action=edit&id=<?= urlencode($emp['EmpNo']) ?>">Edit</a>
+                        <a href="">Delete</a>
+                    </td>
 
                 </tr>
 
@@ -35,7 +40,7 @@
         
         <?php else: ?> 
             <!-- msg telling k there is no data to show  -->
-             <tr><td colspan="6">No employee records found</td></tr>
+             <tr><td colspan="7">No employee records found</td></tr>
 
         <?php endif;?>
 
