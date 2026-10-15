@@ -23,36 +23,54 @@ class EmployeeController
         include 'views/employee_form.php';
     }
 
+    public function getPostData()
+    {
+        $EmpNo = $_POST['EmpNo'] ?? '';
+        $NiNo  = strtoupper(trim($_POST['NiNo'] ?? ''));
+
+        $formData = [
+            'EmpNo' => $EmpNo,
+            'NiNo' => $NiNo,
+            'Firstname' => $_POST['Firstname'] ?? '',
+            'Surname' => $_POST['Surname'] ?? '',
+            'DeptNo' => $_POST['DeptNo'] ?? '',
+            'Office' => $_POST['Office'] ?? '',
+            'Salary' => $_POST['Salary'] ?? '',
+        ];
+
+        //for db me data pass we need to replace placeholder walay se 
+        $dbData = [];
+        foreach ($formData as $key => $value) {
+            $dbData[":$key"] = $value;
+        }
+        return [
+            'form' => $formData,
+            'db' => $dbData,
+            'nino' => $NiNo
+        ];
+    }
+
     public function store()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // $data=[
-            //     ':EmpNo' => $_POST['EmpNo'],
-            //     ':NiNo'      => $_POST['NiNo'],
-            //     ':Firstname' => $_POST['Firstname'],
-            //     ':Surname'   => $_POST['Surname'],
-            //     ':DeptNo'    => $_POST['DeptNo'],
-            //     ':Office'    => $_POST['Office'],
-            //     ':Salary'    => $_POST['Salary']
+            $extracted = $this->getPostData();
+            $formData = $extracted['form'];
+            $dbData = $extracted['db'];
+            $NiNo = $extracted['nino'];
+            $autoEmpNo = $formData['EmpNo'];
+
+            // $autoEmpNo = $_POST['EmpNo'] ?? '';
+            // $NiNo = strtoupper(trim($_POST['NiNo'] ?? ''));
+
+            // $formData = [
+            //     'NiNo' => $NiNo,
+            //     'Firstname' => $_POST['Firstname'] ?? '',
+            //     'Surname' => $_POST['Surname'] ?? '',
+            //     'DeptNo' => $_POST['DeptNo'] ?? '',
+            //     'Office' => $_POST['Office'] ?? '',
+            //     'Salary' => $_POST['Salary'] ?? '',
             // ];
-
-            // if($this->model->insertEmployee($data)){
-            //     header("Location: index.php?action=list");
-            //     exit();
-            // }
-
-            $autoEmpNo = $_POST['EmpNo'] ?? '';
-            $NiNo = strtoupper(trim($_POST['NiNo'] ?? ''));
-
-            $formData = [
-                'NiNo' => $NiNo,
-                'Firstname' => $_POST['Firstname'] ?? '',
-                'Surname' => $_POST['Surname'] ?? '',
-                'DeptNo' => $_POST['DeptNo'] ?? '',
-                'Office' => $_POST['Office'] ?? '',
-                'Salary' => $_POST['Salary'] ?? '',
-            ];
 
             // Regex: start (^), 2 allowed letters, 6 digits, 1 letter A-D, end ($), case-insensitive (/i)
             $nino_pattern = '/^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]$/i';
@@ -65,45 +83,36 @@ class EmployeeController
 
 
             //ab we will do try catch to check duplicate h k nhi
-            $data = [
-                ':EmpNo' => $autoEmpNo,
-                ':NiNo' => $NiNo,
-                ':Firstname' => $_POST['Firstname'] ?? '',
-                ':Surname' => $_POST['Surname'] ?? '',
-                ':DeptNo' => $_POST['DeptNo'] ?? '',
-                ':Office' => $_POST['Office'] ?? '',
-                ':Salary' => $_POST['Salary'] ?? '',
-            ];
+
 
             try {
-                if ($this->model->insertEmployee($data)) {
-
-                    //ab we need to also add the audit message jese hi employee create ho 
-                    $logMessage = "Employee " . $_POST['EmpNo'] . " created";
-                    $this->logModel->addLog($logMessage, 'CREATE');
+                // Model ko direct placeholder wala array de diya
+                if ($this->model->insertEmployee($dbData)) {
+                    $this->logModel->addLog("Employee " . $autoEmpNo . " created", 'CREATE');
                     header("Location: index.php?action=list");
                     exit();
-                } else {
-                    echo "Error inserting record";
                 }
             } catch (PDOException $e) {
                 //23000 error code is dor inetgraty constrayunt violation
 
                 //$e->errorInfo = [ "23000", 1062, "Duplicate entry 'AB123456C' for key 'NiNo'"];
-                if ($e->getCode() == 23000 || (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062)) {
+                if ($e->getCode() == 23000 || (isset($e->errorInfo) && $e->errorInfo == 1062)) {
                     $error_message = "Duplicate Record : The NiNo '{$NiNo}' is already registered.";
                     include 'views/employee_form.php';
-                    return; // Error ke sath form reload kar dega
+                    return;
                 }
                 throw $e;
             }
         }
     }
-public function edit(){
-      
+
+
+    public function edit()
+    {
+
         $empNo = $_GET['id'] ?? null;
-        
-        if($empNo){
+
+        if ($empNo) {
             $formData = $this->model->getEmployeeById($empNo);
             include 'views/employee_form.php';
         } else {
@@ -113,9 +122,10 @@ public function edit(){
         }
     }
 
-    public function update(){
-        if($_SERVER['REQUEST_METHOD']==='POST'){
-            $data=[
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
                 ':EmpNo' => $_POST['EmpNo'],
                 ':NiNo'      => $_POST['NiNo'],
                 ':Firstname' => $_POST['Firstname'],
@@ -125,7 +135,7 @@ public function edit(){
                 ':Salary'    => $_POST['Salary']
             ];
 
-            if($this->model->updateEmployee($data)){
+            if ($this->model->updateEmployee($data)) {
                 header("Location: index.php?action=list");
                 exit();
             }
