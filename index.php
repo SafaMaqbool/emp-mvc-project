@@ -17,6 +17,7 @@ switch($action){
         break;
     case 'update':
         $controller->update();
+        break;
     case 'list':
         default:
         $controller->list();

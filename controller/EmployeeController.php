@@ -121,24 +121,39 @@ class EmployeeController
             exit();
         }
     }
-
     public function update()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                ':EmpNo' => $_POST['EmpNo'],
-                ':NiNo'      => $_POST['NiNo'],
-                ':Firstname' => $_POST['Firstname'],
-                ':Surname'   => $_POST['Surname'],
-                ':DeptNo'    => $_POST['DeptNo'],
-                ':Office'    => $_POST['Office'],
-                ':Salary'    => $_POST['Salary']
-            ];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?action=list");
+            exit();
+        }
 
-            if ($this->model->updateEmployee($data)) {
+        $extracted = $this->getPostData();
+        $formData  = $extracted['form'];   // form refill ke liye (EmpNo bhi isme hai)
+        $dbData    = $extracted['db'];
+        $NiNo      = $extracted['nino'];
+
+        // Same validation as store
+        $nino_pattern = '/^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]$/i';
+        if (!preg_match($nino_pattern, $NiNo)) {
+            $error_message = "Invalid UK National Insurance Number format (e.g. QQ123456C).";
+            include 'views/employee_form.php';
+            return;
+        }
+
+        try {
+            if ($this->model->updateEmployee($dbData)) {
+                $this->logModel->addLog("Employee " . $formData['EmpNo'] . " updated", 'UPDATE');
                 header("Location: index.php?action=list");
                 exit();
             }
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000 || ($e->errorInfo[1] ?? null) == 1062) {
+                $error_message = "Duplicate Record: The NiNo '{$NiNo}' is already registered.";
+                include 'views/employee_form.php';
+                return; 
+            }
+            throw $e;
         }
     }
 
