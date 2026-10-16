@@ -60,7 +60,7 @@ $isEditing = !empty($formData['EmpNo']);
         <input type="number" name="Salary" placeholder="eg:50000.00" value="<?= htmlspecialchars($formData['Salary'] ?? ''); ?>" required>
     </div>
 
-    <button type="submit">Save Employee</button>
+    <button type="submit"><?= $isEditing ? 'Update Employee' : 'Register Employee' ?></button>
 
    
 </form>

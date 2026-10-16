@@ -42,7 +42,10 @@ class EmployeeModel
     {
         $query = "SELECT e.EmpNo, e.NiNo, e.Firstname, e.Surname, d.DeptName, e.Office, e.Salary 
                   FROM employee e 
-                  INNER JOIN department d ON e.DeptNo = d.DeptNo";
+                  INNER JOIN department d ON e.DeptNo = d.DeptNo
+                  WHERE e.is_active =1 ";
+
+
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -60,9 +63,16 @@ class EmployeeModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function softDeleteEmployee($empNo)
+    {
+        $stmt = $this->conn->prepare("UPDATE employee SET is_active = 0 WHERE EmpNo = :EmpNo");
+        return $stmt->execute([':EmpNo' => $empNo]);
+    }
 
-public function updateEmployee($data) {
-    $query = "UPDATE employee
+
+    public function updateEmployee($data)
+    {
+        $query = "UPDATE employee
               SET NiNo = :NiNo,
                   Firstname = :Firstname,
                   Surname = :Surname,
@@ -71,11 +81,9 @@ public function updateEmployee($data) {
                   Salary = :Salary
               WHERE EmpNo = :EmpNo";
 
-    $stmt = $this->conn->prepare($query);
-
-    
-    return $stmt->execute($data); 
-}
+        $stmt = $this->conn->prepare($query);
 
 
+        return $stmt->execute($data);
+    }
 }

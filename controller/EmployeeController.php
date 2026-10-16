@@ -157,6 +157,14 @@ class EmployeeController
         }
     }
 
+    public function delete(){
+        $empNo=$_GET['id'] ?? null;
+        if($empNo && $this->model->softDeleteEmployee($empNo)){
+         $this -> logModel->addLog("Employee ". $empNo ." soft deleted","SOFT_DELETE");
+        }
+        header("Location: index.php?action=list");
+        exit();
+    }
     public function List()
     {
         $employees = $this->model->getAllEmployeeWithDepartment();

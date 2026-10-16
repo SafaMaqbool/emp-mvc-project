@@ -30,7 +30,7 @@
                     <td><?php echo htmlspecialchars($emp['Salary']);?></td>
                     <td>
                         <a href="index.php?action=edit&id=<?= urlencode($emp['EmpNo']) ?>">Edit</a>
-                        <a href="">Delete</a>
+                        <a href="index.php?action=delete&id=<?= urlencode($emp['EmpNo']) ?>" onclick="return confirm('Are you sure you want to delete this employee?')">Delete</a>
                     </td>
 
                 </tr>
