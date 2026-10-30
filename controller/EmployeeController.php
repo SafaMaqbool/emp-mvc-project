@@ -106,6 +106,53 @@ class EmployeeController
         }
     }
 
+    public function exportCsv()
+    {
+        // Model se active employees leingt
+        $employees = $this->model->getPaginatedEmployees();
+
+        // Browser ko batao: ye page nahi, CSV file hai, download karo
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="employees_' . date('Y-m-d') . '.csv"');
+
+        // Seedha browser ki taraf likhne ke liye output stream kholo
+        $output = fopen('php://output', 'w');
+
+        // Pehli line: column names
+        fputcsv($output, ['EmpNo', 'NiNo', 'Firstname', 'Surname', 'DeptNo', 'Office', 'Salary', 'Created At']);
+
+        //Har employee ki ek line
+        foreach ($employees as $emp) {
+            fputcsv($output, $emp);
+        }
+
+        fclose($output);
+
+        // Audit log
+        $this->logModel->addLog("CSV export of " . count($employees) . " employees", 'EXPORT');
+        exit();
+    }
+
+    public function apiPublish()
+    {
+        // 1. Model se active employees lao
+        $employees = $this->model->getPaginatedEmployees();
+
+        // 2. Browser ko batao: ye HTML nahi, JSON data hai
+        header('Content-Type: application/json; charset=utf-8');
+
+        // 3. Response ka structure banao
+        $response = [
+            'status'      => 200,
+            'total_count' => count($employees),
+            'timestamp'   => date('Y-m-d H:i:s'),
+            'data'        => $employees
+        ];
+
+        // 4. PHP array ko JSON mein badal ke bhejo
+        echo json_encode($response, JSON_PRETTY_PRINT);
+        exit();
+    }
 
     public function edit()
     {
@@ -151,16 +198,17 @@ class EmployeeController
             if ($e->getCode() == 23000 || ($e->errorInfo[1] ?? null) == 1062) {
                 $error_message = "Duplicate Record: The NiNo '{$NiNo}' is already registered.";
                 include 'views/employee_form.php';
-                return; 
+                return;
             }
             throw $e;
         }
     }
 
-    public function delete(){
-        $empNo=$_GET['id'] ?? null;
-        if($empNo && $this->model->softDeleteEmployee($empNo)){
-         $this -> logModel->addLog("Employee ". $empNo ." soft deleted","SOFT_DELETE");
+    public function delete()
+    {
+        $empNo = $_GET['id'] ?? null;
+        if ($empNo && $this->model->softDeleteEmployee($empNo)) {
+            $this->logModel->addLog("Employee " . $empNo . " soft deleted", "SOFT_DELETE");
         }
         header("Location: index.php?action=list");
         exit();

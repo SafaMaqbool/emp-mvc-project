@@ -99,4 +99,18 @@ class EmployeeModel
         $stmt->execute([':DeptNo' => $deptNo]);
         return $stmt->fetchColumn() > 0;
     }
+
+    public function getPaginatedEmployees($limit = 1000, $offset = 0) {
+    $stmt = $this->conn->prepare(
+        "SELECT EmpNo, NiNo, Firstname, Surname, DeptNo, Office, Salary, created_at
+         FROM employee
+         WHERE is_active = 1
+         ORDER BY CAST(SUBSTRING(EmpNo, 2) AS UNSIGNED)
+         LIMIT :limit OFFSET :offset"
+    );
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

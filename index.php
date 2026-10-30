@@ -30,6 +30,12 @@ switch ($action) {
         $importController = new ImportController();
         $importController->handleImport();
         break;
+       case 'export_csv':
+        $controller->exportCsv();
+        break;
+    case 'api_publish':
+        $controller->apiPublish();
+        break;
     case 'list':
     default:
         $controller->list();
