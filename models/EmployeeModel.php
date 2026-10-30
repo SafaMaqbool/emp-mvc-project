@@ -86,4 +86,17 @@ class EmployeeModel
 
         return $stmt->execute($data);
     }
+    public function ninoExists($nino)
+    {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM employee WHERE NiNo = :NiNo");
+        $stmt->execute([':NiNo' => $nino]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function deptExists($deptNo)
+    {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM department WHERE DeptNo = :DeptNo");
+        $stmt->execute([':DeptNo' => $deptNo]);
+        return $stmt->fetchColumn() > 0;
+    }
 }

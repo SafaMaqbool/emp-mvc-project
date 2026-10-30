@@ -1,11 +1,12 @@
 <?php
 require_once 'controller/EmployeeController.php';
+require_once 'controller/ImportController.php';
 
 $controller = new EmployeeController();
 
-$action= isset($_GET['action']) ? $_GET['action'] : 'list';
+$action = $_GET['action'] ?? 'list';
 
-switch($action){
+switch ($action) {
     case 'create':
         $controller->create();
         break;
@@ -21,13 +22,16 @@ switch($action){
     case 'delete':
         $controller->delete();
         break;
+    case 'import':
+        $importController = new ImportController();
+        $importController->showImportForm();
+        break;
+    case 'import_process':
+        $importController = new ImportController();
+        $importController->handleImport();
+        break;
     case 'list':
-        default:
+    default:
         $controller->list();
         break;
-
 }
-
-
-
-?>
